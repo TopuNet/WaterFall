@@ -1,0 +1,54 @@
+@page_name: body.demo;
+
+.gray_scale_filter(@percent: 0) {
+    -webkit-filter: grayscale(@percent);
+    -moz-filter: grayscale(@percent);
+    -ms-filter: grayscale(@percent);
+    -o-filter: grayscale(@percent);
+    filter: grayscale(@percent);
+}
+
+@{page_name} img.GrayScale {
+    .gray_scale_filter(100%);
+    filter: gray;
+    &.restore {
+        .gray_scale_filter(0);
+        filter: none;
+    }
+}
+
+@{page_name} svg.svg_hidden{
+    display:none;
+}
+
+// 隐藏SVG
+@{page_name} svg.GrayScale {
+    -webkit-filter: opacity(0);
+    -moz-opacity: 0;
+    opacity: 0;
+    -khtml-opacity: 0; 
+}
+
+// IE10
+@media all and (-ms-high-contrast:none){
+  @{page_name} svg.GrayScale  {
+    opacity: 1;
+  }
+  @{page_name} img.GrayScale{
+    display:none;
+  }
+}
+ 
+// IE11
+@media all and (-ms-high-contrast:none){
+  *::-ms-backdrop, @{page_name} svg.GrayScale  {
+    opacity: 1;
+  }
+  @{page_name} img.GrayScale{
+    display:none;
+  }
+}
+
+@{page_name} svg.GrayScale img {
+    filter: url("#grayscale");
+}
