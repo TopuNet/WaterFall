@@ -19,7 +19,8 @@ var WaterFall = {
     insert_n: -1, // 已插入datalist的序号
     init: function(waterfall_obj) {
         var obj_default = {
-            box_selector: null, // 瀑布流外盒选择器。无默认值
+            listener_scroll_selector: null, // 监听滚动的选择器。默认window
+            box_selector: null, // 项目单元外盒选择器。无默认值
             item_selector: null, // 项目单元选择器。必须存在于box内。无默认值
             item_width: null, // 项目单元宽度。不包含列间距。无默认值
             line_top: 0, // 行 上间距。默认0
@@ -37,6 +38,7 @@ var WaterFall = {
             callback_none_success: null // 0数据行的成功回调。无默认值
         };
         this.paras = $.extend(obj_default, waterfall_obj);
+        this.paras.listener_scroll_obj = this.paras.listener_scroll_selector ? $(this.paras.listener_scroll_selector) : $(window);
 
         // 将vw转换为px
         this.vw2px();
@@ -60,7 +62,7 @@ var WaterFall = {
         if (_para.unit == "px")
             return;
 
-        var _window_width = $(window).width();
+        var _window_width = this.paras.listener_scroll_obj.width();
         WaterFall.paras.item_width = WaterFall.paras.item_width / 100 * _window_width;
         WaterFall.paras.line_top = WaterFall.paras.line_top / 100 * _window_width;
         WaterFall.paras.line_first_top = WaterFall.paras.line_first_top / 100 * _window_width;
@@ -116,10 +118,10 @@ var WaterFall = {
 
     // 监听窗口滚动
     window_scroll: function() {
-        $(window).unbind("scroll");
+        this.paras.listener_scroll_obj.unbind("scroll");
         if (!WaterFall.window_scroll_listen)
             return;
-        $(window).scroll(function() {
+        this.paras.listener_scroll_obj.scroll(function() {
             WaterFall.valid_toInsert();
         });
     },
@@ -161,7 +163,7 @@ var WaterFall = {
 
     // 判断是否需要插入新单元，并执行
     valid_toInsert: function() {
-        var scrollTop_px = $(window).scrollTop();
+        var scrollTop_px = this.paras.listener_scroll_obj.scrollTop();
         if (WaterFall.column_shortest_height_min_px + WaterFall.box_top_px - scrollTop_px < WaterFall.window_height_px) {
             if (WaterFall.item_inserting)
                 return;
@@ -177,7 +179,6 @@ var WaterFall = {
 
         var datalist = WaterFall.paras.datalist;
         var box_obj = $(WaterFall.paras.box_selector);
-        2
 
         if (!WaterFall.column_height_px) {
             WaterFall.column_height_px = new Array;
