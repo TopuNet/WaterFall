@@ -1,5 +1,5 @@
 {
-  "name": "TopuNet-WaterWall",
+  "name": "TopuNet-WaterFall",
   "version": "1.0.1",
   "description": "瀑布流",
   "main": "jq/GrayScale.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TopuNet/WaterWall.git"
+    "url": "git+https://github.com/TopuNet/WaterFall.git"
   },
   "keywords": [
     "topu.net"
@@ -16,7 +16,7 @@
   "author": "Topu.net",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/TopuNet/WaterWall/issues"
+    "url": "https://github.com/TopuNet/WaterFall/issues"
   },
-  "homepage": "https://github.com/TopuNet/WaterWall#readme"
+  "homepage": "https://github.com/TopuNet/WaterFall#readme"
 }

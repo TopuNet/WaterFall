@@ -1,10 +1,10 @@
 # 瀑布流插件 v1.0.1
-### 安装：npm install TopuNet-WaterWall
+### 安装：npm install TopuNet-WaterFall
 
 文件结构：
 -------------
 
-		1. WaterWall.js 放入项目文件夹jq（原生规范）或widget/lib（AMD规范）中
+		1. WaterFall.js 放入项目文件夹jq（原生规范）或widget/lib（AMD规范）中
 
 页面引用：
 -------------
@@ -12,11 +12,11 @@
 原生引用：
 
 		1. 页面底端引用最新版 /inc/Jquery.min.js#1.x.x 或 zepto.min.js
-		2. 后引用 /jq/WaterWall.js
+		2. 后引用 /jq/WaterFall.js
 
 requireJS引用：
         
-        2. 依赖WaterWall.js和(jquery.min.js#1.x 或 zepto.min.js)，成功后返回对象WaterWall
+        2. 依赖WaterFall.js和(jquery.min.js#1.x 或 zepto.min.js)，成功后返回对象WaterFall
 
 
 功能配置及启用：
@@ -110,4 +110,3 @@ requireJS引用：
 v1.0.1
 
         创建项目并发布
-        
