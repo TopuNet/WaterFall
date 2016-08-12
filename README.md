@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.0.1
+# 瀑布流插件 v1.0.2
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -41,7 +41,7 @@ requireJS引用：
             callback_item_success: function(_item_obj) { // 项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值
                 console.log("项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值");
             },
-            callback_all_success: function() { // 成功回调。无默认值
+            callback_all_success: function() { // 第一次加载时，所有需要加载的图片加载成功回调。无默认值
                 console.log("成功回调。无默认值");
             },
             callback_none_success: function() { // 0数据行成功回调（没有数据）。无默认值
@@ -106,6 +106,10 @@ requireJS引用：
 
 更新记录：
 --------------
+
+v1.0.2
+
+        所有图片加载成功回调只执行一次
 
 v1.0.1
 

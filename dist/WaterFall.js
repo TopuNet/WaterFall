@@ -1,5 +1,5 @@
 /*
-    v1.0.1
+    v1.0.2
     高京
     2016-08-12
     瀑布流
@@ -197,8 +197,10 @@ var WaterFall = {
 
             // 如超出了数据长度，则结束
             if (++WaterFall.insert_n >= datalist.length) {
-                if (WaterFall.paras.callback_all_success)
+                if (WaterFall.paras.callback_all_success) {
                     WaterFall.paras.callback_all_success();
+                    WaterFall.paras.callback_all_success = null;
+                }
                 if (WaterFall.paras.callback_none_success && datalist.length == 0)
                     WaterFall.paras.callback_none_success();
                 WaterFall.item_inserting = false;
@@ -309,8 +311,10 @@ var WaterFall = {
 
                 // 判断最短的列是否超过窗口底线
                 if ((column_shortest_px + WaterFall.box_top_px) > (WaterFall.window_height_px + scrollTop_px)) {
-                    if (WaterFall.paras.callback_all_success)
+                    if (WaterFall.paras.callback_all_success) {
                         WaterFall.paras.callback_all_success();
+                        WaterFall.paras.callback_all_success = null;
+                    }
                     // 重置window.scroll监听
                     WaterFall.item_inserting = false;
                     WaterFall.window_scroll();
