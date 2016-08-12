@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.0.2
+# 瀑布流插件 v1.0.3
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -26,7 +26,8 @@ requireJS引用：
 
 		var WaterFall_para = {
             listener_scroll_selector: "section.wrap", // 监听滚动的选择器。默认window，移动端使用mobile_stop_moved模块时，可以设置为最外盒
-            box_selector: "section.list", // 项目单元外盒选择器。无默认值。移动端使用时，需设置 position: relative;
+            box_selector: "section.list", // 项目单元外盒选择器。无默认值。后自动设置行内元素样式 position: relative;
+            item_selector: null, // 项目单元选择器。必须存在于box内。无默认值
             item_width: 243, // 项目单元宽度。不包含列间距。无默认值
             line_top: 22, // 行 上间距。默认0
             line_first_top: 11, // 第一行 上间距。默认0
@@ -86,6 +87,8 @@ requireJS引用：
         }
 
         JSON形式：
+        支持任意JSON对象结构和模板。
+        键值会替换{$data-键名}
 
         {
             // 其他参数 //
@@ -106,6 +109,12 @@ requireJS引用：
 
 更新记录：
 --------------
+
+v1.0.3
+
+        1. 自动为box_selector加行内样式 position: relative; 解决之前一直忽视的问题（瀑布墙不见得从页面顶端开始……）
+        2. 修改js中的注释
+        3. 修改Readme
 
 v1.0.2
 

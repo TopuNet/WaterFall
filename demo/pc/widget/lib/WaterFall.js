@@ -1,5 +1,5 @@
 /*
-    v1.0.2
+    v1.0.3
     高京
     2016-08-12
     瀑布流
@@ -19,26 +19,29 @@ var WaterFall = {
     insert_n: -1, // 已插入datalist的序号
     init: function(waterfall_obj) {
         var obj_default = {
-            listener_scroll_selector: null, // 监听滚动的选择器。默认window
-            box_selector: null, // 项目单元外盒选择器。无默认值
+            listener_scroll_selector: null, // 监听滚动的选择器。默认window，移动端使用mobile_stop_moved模块时，可以设置为最外盒
+            box_selector: null, // 项目单元外盒选择器。无默认值。后自动设置行内元素样式 position: relative;
             item_selector: null, // 项目单元选择器。必须存在于box内。无默认值
             item_width: null, // 项目单元宽度。不包含列间距。无默认值
             line_top: 0, // 行 上间距。默认0
             line_first_top: 0, // 第一行 上间距。默认0
             column_left: 0, // 列 左间距。默认0
             column_first_left: 0, // 第一列 左间距。默认0
-            unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，不重新转换
+            unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，vw不重新计算对应的px
             item_min: 1, // 最小列数，默认1。
             ps: 50, // 每页显示数量。默认50（5×10）
             data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的${data-key}。
             datalist: null, // 项目单元内容。支持字符串数组或JSON对象。JSON对象需配合data_template使用
             resize_window_resize_column_number: false, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载，耗资源），默认false
             callback_item_success: null, // 项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值
-            callback_all_success: null, // 成功回调。无默认值
-            callback_none_success: null // 0数据行的成功回调。无默认值
+            callback_all_success: null, // 第一次加载时，所有需要加载的图片加载成功回调。无默认值
+            callback_none_success: null // 0数据行成功回调（没有数据）。无默认值
         };
         this.paras = $.extend(obj_default, waterfall_obj);
         this.paras.listener_scroll_obj = this.paras.listener_scroll_selector ? $(this.paras.listener_scroll_selector) : $(window);
+
+        // 设置box的position
+        $(this.paras.box_selector).css("position", "relative");
 
         // 将vw转换为px
         this.vw2px();
