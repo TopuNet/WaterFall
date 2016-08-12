@@ -1,7 +1,7 @@
 /*
     v1.0.1
     高京
-    2016-02-27
+    2016-08-12
     瀑布流
 */
 var WaterFall = {
@@ -15,6 +15,7 @@ var WaterFall = {
     box_top_px: 0, // 外盒top
     item_inserting: false, // 标记正在装载项目——防止同一时间多次调用装载。窗口滚动和窗口resize时会判断是否空闲。
     window_scroll_listen: true, // 标记是否监听窗口滚动（动态加载项目单元），重载数据时停止监听
+    window_resize_listen: true, // 标记是否监听窗口改变大小，重置窗口大小时改成false，防止拖动浏览器边缘改变大小时频繁调用出现问题
     insert_n: -1, // 已插入datalist的序号
     init: function(waterfall_obj) {
         var obj_default = {
@@ -28,8 +29,9 @@ var WaterFall = {
             unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，不重新转换
             item_min: 1, // 最小列数，默认1。
             ps: 50, // 每页显示数量。默认50（5×10）
-            datalist: null, // 单元内容字符串数组
-            resize_window_resize_column_number: true, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载），默认true
+            data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的${data-key}。
+            datalist: null, // 项目单元内容。支持字符串数组或JSON对象。JSON对象需配合data_template使用
+            resize_window_resize_column_number: false, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载，耗资源），默认false
             callback_item_success: null, // 项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值
             callback_all_success: null, // 成功回调。无默认值
             callback_none_success: null // 0数据行的成功回调。无默认值
@@ -69,48 +71,47 @@ var WaterFall = {
     // 重载/插入 项目单元，支持外部调用。改变窗口大小时也有用到。
     insert_items_list: function(paras) {
         var paras_default = {
-            datalist: null, // 单元内容字符串数组。无默认值
+            datalist: null,
             clear_box: false // 是否清空现有内容，true/false。默认false
         };
 
         paras = $.extend(paras_default, paras);
 
-        this.paras.datalist = paras.datalist;
+        WaterFall.paras.datalist = paras.datalist;
 
         // 清空插入单元计数器
-        this.insert_n = -1;
+        WaterFall.insert_n = -1;
 
         // 清空已有图片
         if (paras.clear_box) {
 
             // 暂停window.scroll监听
-            this.window_scroll_listen = false;
-            this.window_scroll(this);
+            WaterFall.window_scroll_listen = false;
+            WaterFall.window_scroll();
 
             // 还原全局变量
-            this.box_height_px = 0;
-            this.column_height_px = null;
-            this.column_shortest_height_min_px = 0;
+            WaterFall.box_height_px = 0;
+            WaterFall.column_height_px = null;
+            WaterFall.column_shortest_height_min_px = 0;
 
             // 改变外盒高度
-            var _WaterFall = this;
-            $(_WaterFall.paras.box_selector).animate({
+            $(WaterFall.paras.box_selector).animate({
                 height: "0px"
             }, 200, function() {
 
-                _WaterFall.window_scroll_listen = true;
+                WaterFall.window_scroll_listen = true;
 
                 $(this).html("");
 
                 // 重计算列数量
                 WaterFall.resize_item();
 
-                _WaterFall.insert_item(_WaterFall);
+                WaterFall.insert_item();
             });
         } else
             WaterFall.insert_item();
 
-        this.window_scroll_listen = true;
+        WaterFall.window_scroll_listen = true;
     },
 
     // 监听窗口滚动
@@ -125,25 +126,37 @@ var WaterFall = {
 
     // 监听窗口resize
     window_resize: function() {
+
         var resize_n = 0;
         $(window).resize(function() {
+
+            if (!WaterFall.window_resize_listen)
+                return;
+
+            WaterFall.window_resize_listen = false;
+
             if (++resize_n % 2 == 0)
                 return;
-            setTimeout(function() {
-                WaterFall.window_height_px = $(window).height();
-                resize_n = 0;
 
-                if (WaterFall.paras.resize_window_resize_column_number)
-                // 清空已有列表，重新计算并加载图片
+            setTimeout(function() {
+
+                WaterFall.window_height_px = $(window).height();
+
+                if (WaterFall.paras.resize_window_resize_column_number) {
+                    // 清空已有列表，重新计算并加载图片
                     WaterFall.insert_items_list({
-                    datalist: WaterFall.paras.datalist,
-                    clear_box: true
-                });
-                else
+                        datalist: WaterFall.paras.datalist,
+                        clear_box: true
+                    });
+                } else
                 // 不清空列表，计算是否需要加载新图片（列表宽度不会变）
                     WaterFall.valid_toInsert();
+
+                resize_n = 0;
+
             }, 0);
         });
+
     },
 
     // 判断是否需要插入新单元，并执行
@@ -164,6 +177,7 @@ var WaterFall = {
 
         var datalist = WaterFall.paras.datalist;
         var box_obj = $(WaterFall.paras.box_selector);
+        2
 
         if (!WaterFall.column_height_px) {
             WaterFall.column_height_px = new Array;
@@ -221,14 +235,27 @@ var WaterFall = {
                 column_shortest * (WaterFall.paras.column_left + WaterFall.paras.item_width);
 
             // 插入新单元
-            box_obj.append(datalist[WaterFall.insert_n]);
+            if (WaterFall.paras.data_template) {
+                var _obj = WaterFall.paras.datalist[WaterFall.insert_n];
+                var _str = WaterFall.paras.data_template;
+                var reg;
+                for (var key in _obj) {
+                    eval("reg = /\\{\\$data-" + key + "\\}/g;");
+                    _str = _str.replace(reg, _obj[key]);
+                }
+                box_obj.append(_str);
+            } else {
+                box_obj.append(datalist[WaterFall.insert_n]);
+            }
 
             // console.log(WaterFall.insert_n);
 
             // 找到新单元
             var item_obj = $(WaterFall.paras.box_selector + " " + WaterFall.paras.item_selector);
-            // console.log(item_obj.length);
             item_obj = $(item_obj[item_obj.length - 1]);
+
+            // 装载JSON内容到新单元
+            if (WaterFall.paras.data_template && WaterFall.insert_n == 0) {}
 
             // 定位新单元位置
             item_obj.addClass("c" + column_shortest)
@@ -283,9 +310,12 @@ var WaterFall = {
                 if ((column_shortest_px + WaterFall.box_top_px) > (WaterFall.window_height_px + scrollTop_px)) {
                     if (WaterFall.paras.callback_all_success)
                         WaterFall.paras.callback_all_success();
-                    WaterFall.item_inserting = false;
                     // 重置window.scroll监听
+                    WaterFall.item_inserting = false;
                     WaterFall.window_scroll();
+                    // 重置window.resize监听
+                    WaterFall.window_resize_listen = true;
+                    WaterFall.window_resize();
                     return;
                 }
 
