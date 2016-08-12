@@ -1,0 +1,143 @@
+@charset "utf-8";
+
+/* 横屏遮罩 */
+
+section.landscape_mask {
+    box-sizing:border-box;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 90000;
+    background: rgba(0, 0, 0, 1);
+    /*border:solid 1px #ff0000;*/
+    display: none;
+}
+
+section.landscape_mask div.mod_div {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 20%;
+    display: none;
+    /*border:solid 1px #ffff00;*/
+    /*overflow: hidden;*/
+}
+
+section.landscape_mask div.mod_div p {
+    position: relative;
+    margin-top:16vw;
+    /*border:solid 1px #ff0000;*/
+    font-size: 2.3vw;
+    color: rgba(255, 255, 255, 1);
+    /*border:solid 1px #ff0000;*/
+}
+
+section.landscape_mask div.mod_div img {
+    position: absolute;
+    /*top:-70%;*/
+    left:46vw;
+    width: 8%;
+    /*border:solid 1px #ff00ff;*/
+    /*transform:rotate(90deg);*/
+}
+
+@media screen and (orientation:landscape) {
+    section.landscape_mask_show {
+        display: block;
+    }
+    section.landscape_mask_show div.mod_div {
+        display: block;
+    }
+}
+
+@keyframes landscape_mask_img_rotation {
+    0% {
+        transform: rotate(-5deg);
+        -webkit-transform: rotate(-5deg);
+        -moz-transform: rotate(-5deg);
+        -o-transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(92deg);
+        -webkit-transform: rotate(92deg);
+        -moz-transform: rotate(92deg);
+        -o-transform: rotate(92deg);
+    }
+}
+
+@-webkit-keyframes landscape_mask_img_rotation {
+    0% {
+        transform: rotate(-5deg);
+        -webkit-transform: rotate(-5deg);
+        -moz-transform: rotate(-5deg);
+        -o-transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(92deg);
+        -webkit-transform: rotate(92deg);
+        -moz-transform: rotate(92deg);
+        -o-transform: rotate(92deg);
+    }
+}
+
+@-moz-keyframes landscape_mask_img_rotation {
+    0% {
+        transform: rotate(-5deg);
+        -webkit-transform: rotate(-5deg);
+        -moz-transform: rotate(-5deg);
+        -o-transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(92deg);
+        -webkit-transform: rotate(92deg);
+        -moz-transform: rotate(92deg);
+        -o-transform: rotate(92deg);
+    }
+}
+
+@-o-keyframes landscape_mask_img_rotation {
+    0% {
+        transform: rotate(-5deg);
+        -webkit-transform: rotate(-5deg);
+        -moz-transform: rotate(-5deg);
+        -o-transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(92deg);
+        -webkit-transform: rotate(92deg);
+        -moz-transform: rotate(92deg);
+        -o-transform: rotate(92deg);
+    }
+}
+
+section.landscape_mask div.mod_div img {
+    animation-name: landscape_mask_img_rotation;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 0;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-play-state: running;
+    -webkit-animation-name: landscape_mask_img_rotation;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-delay: 0;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-play-state: running;
+    -moz-animation-name: landscape_mask_img_rotation;
+    -moz-animation-duration: 1s;
+    -moz-animation-timing-function: ease-in-out;
+    -moz-animation-delay: 0;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-direction: alternate;
+    -moz-animation-play-state: running;
+    -o-animation-name: landscape_mask_img_rotation;
+    -o-animation-duration: 1s;
+    -o-animation-timing-function: ease-in-out;
+    -o-animation-delay: 0;
+    -o-animation-iteration-count: infinite;
+    -o-animation-direction: alternate;
+    -o-animation-play-state: running;
+}

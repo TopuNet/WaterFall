@@ -1,0 +1,22 @@
+{
+  "name": "TopuNet-WaterWall",
+  "version": "1.0.1",
+  "description": "瀑布流",
+  "main": "jq/GrayScale.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TopuNet/WaterWall.git"
+  },
+  "keywords": [
+    "topu.net"
+  ],
+  "author": "Topu.net",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TopuNet/WaterWall/issues"
+  },
+  "homepage": "https://github.com/TopuNet/WaterWall#readme"
+}
