@@ -7,6 +7,8 @@
 define(["lib/WaterFall", "lib/mobile_stop_moved", "lib/zepto.min"], function($WaterFall, $mobile_stop_moved) {
     var demo_string = {
         init: function() {
+            // $("section.wrap").css("height", "60vh").css("border", "solid 2px #ff0000").css("margin-top", "20vh");
+
             $mobile_stop_moved.init({
                 selector: "section.wrap", // 容器盒选择器（resize_toWindow为false时，需要在样式表中将此盒定高），无默认值
                 scroll: true, // 盒内可滚动，默认true

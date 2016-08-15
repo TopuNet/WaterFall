@@ -1,4 +1,4 @@
-// 2.0.5
+// 2.0.6
 var mobile_stop_moved = {
     /*
         opt:{
@@ -29,7 +29,7 @@ var mobile_stop_moved = {
 
             $(document).on("touchstart", function(e) {
                 var touches = e.touches || e.originalEvent.touches;
-                var clientY_now = touches[0].clientY;
+                clientY_start = touches[0].clientY;
             });
 
             $(document).unbind("touchmove").on("touchmove", function(e) {
@@ -43,7 +43,7 @@ var mobile_stop_moved = {
 
                 var neednt = offsetHeight >= scrollHeight; // 不需要滚动（盒高度>=盒内容高度）
                 var topest = scrollTop == 0 && clientY_now > clientY_start; // 本身在页首，还往下拉动页面
-                var bottemest = scrollHeight == (scrollTop + offsetHeight) && clientY_now < clientY_start; // 本身在页尾，还往上拉动页面
+                var bottemest = scrollHeight <= (scrollTop + offsetHeight) && clientY_now < clientY_start; // 本身在页尾，还往上拉动页面
 
                 if (neednt || topest || bottemest) {
                     canScroll = false;
