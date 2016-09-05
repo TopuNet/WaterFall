@@ -68,7 +68,7 @@ requireJS引用：
 
 1. 支持移动端和pc端使用。
         
-        移动端一般会配合mobile_stop_moved模块，将listener_scroll_selector设为最外盒的选择器，并将box_selector对应的盒设置样式 position: relative;
+        移动端一般会配合mobile_stop_moved模块，将listener_scroll_selector设为最外盒的选择器。
 
 2. unit可选"px|vw"
 
