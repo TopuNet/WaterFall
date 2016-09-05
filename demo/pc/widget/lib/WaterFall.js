@@ -1,5 +1,5 @@
 /*
-    v1.0.3
+    v1.1.1
     高京
     2016-08-12
     瀑布流
@@ -20,6 +20,7 @@ var WaterFall = {
     init: function(waterfall_obj) {
         var obj_default = {
             listener_scroll_selector: null, // 监听滚动的选择器。默认window，移动端使用mobile_stop_moved模块时，可以设置为最外盒
+            listener_scroll_selector_scroll_listener: null, // 如页面对监听滚动的选择器有其他的scroll监听事件方法，则在此参数传入
             box_selector: null, // 项目单元外盒选择器。无默认值。后自动设置行内元素样式 position: relative;
             item_selector: null, // 项目单元选择器。必须存在于box内。无默认值
             item_width: null, // 项目单元宽度。不包含列间距。无默认值
@@ -122,6 +123,15 @@ var WaterFall = {
     // 监听窗口滚动
     window_scroll: function() {
         this.paras.listener_scroll_obj.unbind("scroll");
+
+        // 绑定对listener_scroll_obj的其他绑定方法（页面传入）
+        if (this.paras.listener_scroll_selector_scroll_listener) {
+            this.paras.listener_scroll_obj.scroll(function() {
+                WaterFall.paras.listener_scroll_selector_scroll_listener();
+            });
+        }
+
+        // 是否有scroll监听
         if (!WaterFall.window_scroll_listen)
             return;
         this.paras.listener_scroll_obj.scroll(function() {

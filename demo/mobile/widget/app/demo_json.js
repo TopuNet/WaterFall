@@ -27,8 +27,10 @@ define(["lib/WaterFall", "lib/mobile_stop_moved", "lib/zepto.min"], function($Wa
             }
 
             var WaterFall_obj = {
-
                 listener_scroll_selector: "section.wrap", // 监听滚动的选择器。默认window
+                listener_scroll_selector_scroll_listener: function(){
+                    console.log("scroll 监听");
+                }, // 如页面对监听滚动的选择器有其他的scroll监听事件方法，则在此参数传入
                 box_selector: "section.list", // 项目单元外盒选择器。无默认值
                 item_selector: "div.list_item", // 项目单元选择器。必须存在于box内。无默认值
                 item_width: 30, // 项目单元宽度。不包含列间距。无默认值
