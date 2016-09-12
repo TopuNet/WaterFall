@@ -1,5 +1,5 @@
 /*
-    v1.1.1
+    v1.1.2
     高京
     2016-08-12
     瀑布流
@@ -150,7 +150,7 @@ var WaterFall = {
 
             WaterFall.window_resize_listen = false;
 
-            if (++resize_n % 2 == 0)
+            if (++resize_n % 2 === 0)
                 return;
 
             setTimeout(function() {
@@ -194,7 +194,7 @@ var WaterFall = {
         var box_obj = $(WaterFall.paras.box_selector);
 
         if (!WaterFall.column_height_px) {
-            WaterFall.column_height_px = new Array;
+            WaterFall.column_height_px = [];
             var i = 0;
             var len = WaterFall.column_count;
             for (; i < len; i++)
@@ -214,7 +214,7 @@ var WaterFall = {
                     WaterFall.paras.callback_all_success();
                     WaterFall.paras.callback_all_success = null;
                 }
-                if (WaterFall.paras.callback_none_success && datalist.length == 0)
+                if (WaterFall.paras.callback_none_success && datalist.length === 0)
                     WaterFall.paras.callback_none_success();
                 WaterFall.item_inserting = false;
                 WaterFall.window_scroll_listen = false;
@@ -242,11 +242,11 @@ var WaterFall = {
             // console.log(column_height);
 
             // 获得新单元的top
-            var top_px = column_height[column_shortest] + (column_height[column_shortest] == 0 ? WaterFall.paras.line_first_top : WaterFall.paras.line_top);
+            var top_px = column_height[column_shortest] + (column_height[column_shortest] === 0 ? WaterFall.paras.line_first_top : WaterFall.paras.line_top);
             // console.log(top_px);
 
             // 获得新单元的left
-            var left_px = column_shortest == 0 ? WaterFall.paras.column_first_left :
+            var left_px = column_shortest === 0 ? WaterFall.paras.column_first_left :
                 WaterFall.paras.column_first_left +
                 column_shortest * (WaterFall.paras.column_left + WaterFall.paras.item_width);
 
@@ -256,7 +256,8 @@ var WaterFall = {
                 var _str = WaterFall.paras.data_template;
                 var reg;
                 for (var key in _obj) {
-                    eval("reg = /\\{\\$data-" + key + "\\}/g;");
+                    reg = new RegExp("\\{\\$data-" + key + "\\}", "g");
+                    // eval("reg = /\\{\\$data-" + key + "\\}/g;");
                     _str = _str.replace(reg, _obj[key]);
                 }
                 box_obj.append(_str);
@@ -271,7 +272,7 @@ var WaterFall = {
             item_obj = $(item_obj[item_obj.length - 1]);
 
             // 装载JSON内容到新单元
-            if (WaterFall.paras.data_template && WaterFall.insert_n == 0) {}
+            if (WaterFall.paras.data_template && WaterFall.insert_n === 0) {}
 
             // 定位新单元位置
             item_obj.addClass("c" + column_shortest)
@@ -345,7 +346,7 @@ var WaterFall = {
             };
 
             // 如果不含图片，调用加载完成方法
-            if (img_obj_len == 0)
+            if (img_obj_len === 0)
                 img_obj_loaded();
 
             // 监听图片加载
@@ -354,17 +355,23 @@ var WaterFall = {
                 if (++img_load_n == img_obj_len)
                     img_obj_loaded();
             };
-            for (i = 0; i < img_obj_len; i++) {
-                var _img = new Image();
-                _img.src = $(img_obj[i]).prop("src");
-                // console.log(WaterFall.insert_n + ":" + _img.src);
-                if (_img.complete) {
-                    img_loaded();
-                } else {
-                    _img.onload = function() {
+            var preload = function() {
+                return function(src) {
+                    var _img = new Image();
+                    _img.src = src;
+                    // console.log(WaterFall.insert_n + ":" + _img.src);
+                    if (_img.complete) {
                         img_loaded();
-                    };
-                }
+                    } else {
+                        _img.onload = function() {
+                            img_loaded();
+                        };
+                    }
+                };
+            }();
+            for (i = 0; i < img_obj_len; i++) {
+                preload($(img_obj[i]).prop("src"));
+
             }
 
         };
