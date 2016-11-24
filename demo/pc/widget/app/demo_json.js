@@ -8,19 +8,20 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
     var demo_string = {
         init: function() {
 
-            var base_datalist = new Array();
+            var that = this;
+
+            that.base_datalist = [];
             var i = 0;
             len = 80;
-            var base_datalist = [];
             for (; i < len; i++) {
-                base_datalist[i] = {
+                that.base_datalist[i] = {
                     img: "/images/" + i + ".jpg",
                     serial: i.toString()
                 };
             }
 
             var WaterFall_obj = {
-                listener_scroll_selector_scroll_listener: function(){
+                listener_scroll_selector_scroll_listener: function() {
                     console.log("scroll 监听");
                 }, // 如页面对监听滚动的选择器有其他的scroll监听事件方法，则在此参数传入
                 box_selector: "section.list", // 瀑布流外盒选择器。无默认值
@@ -39,7 +40,7 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
                 item_min: 2, // 最小列数，默认1。
                 ps: len, // 每页显示数量。默认50（5×10）
                 data_template: "<div class=\"list_item\"><img src=\"{$data-img}\" /><p style=\"text-align:center\">{$data-serial}</p></div>",
-                datalist: base_datalist,
+                datalist: that.base_datalist,
                 resize_window_resize_column_number: true,
                 callback_item_success: function(_item_obj) { // 项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值
                     // console.log("项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值");
@@ -50,8 +51,27 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
                 callback_none_success: function() { // 0数据行成功回调（没有数据）。无默认值
                     console.log("0数据行成功回调（没有数据）。无默认值");
                 }
-            }
+            };
             WaterFall.init(WaterFall_obj);
+
+            this.button_Listener.apply(this);
+        },
+        button_Listener: function() {
+            var that = this;
+
+            $("button").click(function() {
+                var arr = [];
+                var i = 0,
+                    len = 60;
+                for (; i < len; i++)
+                    arr[i] = that.base_datalist[i];
+                var WaterFall_obj = {
+                    datalist: arr,
+                    clear_box: true // 是否清空已有项目单元
+                };
+                
+                WaterFall.insert_items_list(WaterFall_obj);
+            });
         }
     };
 

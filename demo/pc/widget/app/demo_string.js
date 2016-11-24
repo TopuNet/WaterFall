@@ -7,12 +7,13 @@
 define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
     var demo_string = {
         init: function() {
+            var that = this;
 
-            var base_datalist = new Array();
+            that.base_datalist = [];
             var i = 0;
             len = 80;
             for (; i < len; i++) {
-                base_datalist[i] = "<div class=\"list_item\"><img src=\"/images/" + i + ".jpg\" /><p style=\"text-align:center\">" + i + "</p></div>";
+                that.base_datalist[i] = "<div class=\"list_item\"><img src=\"/images/" + i + ".jpg\" /><p style=\"text-align:center\">" + i + "</p></div>";
             }
 
             var WaterFall_obj = {
@@ -31,7 +32,7 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
                 // unit: "vw",
                 item_min: 2, // 最小列数，默认1。
                 ps: len, // 每页显示数量。默认50（5×10）
-                datalist: base_datalist,
+                datalist: that.base_datalist,
                 resize_window_resize_column_number: true,
                 callback_item_success: function(_item_obj) { // 项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值
                     // console.log("项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值");
@@ -44,6 +45,25 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
                 }
             }
             WaterFall.init(WaterFall_obj);
+
+            this.button_Listener.apply(this);
+        },
+        button_Listener: function() {
+            var that = this;
+
+            $("button").click(function() {
+                var arr = [];
+                var i = 0,
+                    len = 60;
+                for (; i < len; i++)
+                    arr[i] = that.base_datalist[i];
+                var WaterFall_obj = {
+                    datalist: arr,
+                    clear_box: true // 是否清空已有项目单元
+                };
+
+                WaterFall.insert_items_list(WaterFall_obj);
+            });
         }
     };
 
