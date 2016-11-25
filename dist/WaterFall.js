@@ -1,5 +1,5 @@
 /*
-    v1.1.2
+    v1.1.4
     高京
     2016-08-12
     瀑布流
@@ -103,7 +103,7 @@ var WaterFall = {
             // 改变外盒高度
             $(WaterFall.paras.box_selector).animate({
                 height: "0px"
-            }, 200, function() {
+            }, 0, function() {
 
                 WaterFall.window_scroll_listen = true;
 
