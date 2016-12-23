@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.1.4
+# 瀑布流插件 v1.1.5
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -26,7 +26,6 @@ requireJS引用：
 
 		var WaterFall_para = {
             listener_scroll_selector: "section.wrap", // 监听滚动的选择器。默认window，移动端使用mobile_stop_moved模块时，可以设置为最外盒
-            listener_scroll_selector_scroll_listener: null, // 如页面对监听滚动的选择器有其他的scroll监听事件方法，则在此参数传入
             box_selector: "section.list", // 项目单元外盒选择器。无默认值。后自动设置行内元素样式 position: relative;
             item_selector: null, // 项目单元选择器。必须存在于box内。无默认值
             item_width: 243, // 项目单元宽度。不包含列间距。无默认值
@@ -110,6 +109,11 @@ requireJS引用：
 
 更新记录：
 --------------
+v1.1.5
+
+        1. 优化scroll的bind和unbind方法，当页面中本身就有scroll监听时（如goto_top模块），不再需要传递额外的方法。
+        2. 传递参数opt中，去掉listener_scroll_selector_scroll_listener。
+
 v1.1.4
 
         1. 将重载/插入方法的清空动画（将元素大盒的高度变为0）的duration从200改为0，优化效果。
