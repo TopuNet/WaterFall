@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.1.5
+# 瀑布流插件 v1.1.6
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -36,7 +36,7 @@ requireJS引用：
             unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，vw不重新计算对应的px
             item_min: 2, // 最小列数，默认1。
             ps: 40, // 每页显示数量。默认50（5×10）
-            data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的${data-key}。
+            data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的{$data-key}。
             datalist: null, // 项目单元内容。支持字符串数组或JSON对象。JSON对象需配合data_template使用
             resize_window_resize_column_number: true, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载，耗资源），默认false
             callback_item_success: function(_item_obj) { // 项目单元成功插入回调 _item_obj: 新插入的单元对象。无默认值
@@ -109,6 +109,11 @@ requireJS引用：
 
 更新记录：
 --------------
+v1.1.6
+
+        1. 修改几个小Bug
+        2. 修改Readme：WaterFall_para传参中，data_template字段的说明——{$data-key}，而非${data-key}
+
 v1.1.5
 
         1. 优化scroll的bind和unbind方法，当页面中本身就有scroll监听时（如goto_top模块），不再需要传递额外的方法。

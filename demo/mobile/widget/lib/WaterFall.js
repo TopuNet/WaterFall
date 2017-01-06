@@ -44,37 +44,41 @@ var WaterFall = {
         $(this.paras.box_selector).css("position", "relative");
 
         // 将vw转换为px
-        this.vw2px();
+        this.vw2px.apply(this);
 
         // 重计算 单元数量
-        this.resize_item();
+        this.resize_item.apply(this);
 
         // 开始装载项目单元
-        this.insert_item();
+        this.insert_item.apply(this);
 
         // 监听窗口滚动
-        this.window_scroll();
+        this.window_scroll.apply(this);
 
         // 监听改变窗口大小
-        this.window_resize();
+        this.window_resize.apply(this);
     },
 
     // 将vw转换为px
     vw2px: function() {
-        var _para = WaterFall.paras;
+        var that = this;
+
+        var _para = that.paras;
         if (_para.unit == "px")
             return;
 
         var _window_width = this.paras.listener_scroll_obj.width();
-        WaterFall.paras.item_width = WaterFall.paras.item_width / 100 * _window_width;
-        WaterFall.paras.line_top = WaterFall.paras.line_top / 100 * _window_width;
-        WaterFall.paras.line_first_top = WaterFall.paras.line_first_top / 100 * _window_width;
-        WaterFall.paras.column_left = WaterFall.paras.column_left / 100 * _window_width;
-        WaterFall.paras.column_first_left = WaterFall.paras.column_first_left / 100 * _window_width;
+        that.paras.item_width = that.paras.item_width / 100 * _window_width;
+        that.paras.line_top = that.paras.line_top / 100 * _window_width;
+        that.paras.line_first_top = that.paras.line_first_top / 100 * _window_width;
+        that.paras.column_left = that.paras.column_left / 100 * _window_width;
+        that.paras.column_first_left = that.paras.column_first_left / 100 * _window_width;
     },
 
     // 重载/插入 项目单元，支持外部调用。改变窗口大小时也有用到。
     insert_items_list: function(paras) {
+        var that = this;
+
         var paras_default = {
             datalist: null,
             clear_box: false // 是否清空现有内容，true/false。默认false
@@ -82,54 +86,55 @@ var WaterFall = {
 
         paras = $.extend(paras_default, paras);
 
-        WaterFall.paras.datalist = paras.datalist;
+        that.paras.datalist = paras.datalist;
 
         // 清空插入单元计数器
-        WaterFall.insert_n = -1;
+        that.insert_n = -1;
 
         // 清空已有图片
         if (paras.clear_box) {
 
             // 暂停window.scroll监听
-            WaterFall.window_scroll_listen = false;
-            WaterFall.window_scroll();
+            that.window_scroll_listen = false;
+            that.window_scroll.apply(that);
 
             // 还原全局变量
-            WaterFall.box_height_px = 0;
-            WaterFall.column_height_px = null;
-            WaterFall.column_shortest_height_min_px = 0;
+            that.box_height_px = 0;
+            that.column_height_px = null;
+            that.column_shortest_height_min_px = 0;
 
             // 改变外盒高度
-            $(WaterFall.paras.box_selector).animate({
+            $(that.paras.box_selector).animate({
                 height: "0px"
             }, 0, function() {
 
-                WaterFall.window_scroll_listen = true;
+                that.window_scroll_listen = true;
 
                 $(this).html("");
 
                 // 重计算列数量
-                WaterFall.resize_item();
+                that.resize_item.apply(that);
 
-                WaterFall.insert_item();
+                that.insert_item.apply(that);
             });
         } else
-            WaterFall.insert_item();
+            that.insert_item.apply(that);
 
-        WaterFall.window_scroll_listen = true;
+        that.window_scroll_listen = true;
     },
 
     // 监听窗口滚动
     window_scroll: function() {
+        var that = this;
 
         var scroll_listener_func = function() {
-            WaterFall.valid_toInsert();
+            that.valid_toInsert.apply(that);
         };
 
         this.paras.listener_scroll_obj.unbind("scroll", scroll_listener_func);
 
         // 是否有scroll监听
-        if (!WaterFall.window_scroll_listen)
+        if (!that.window_scroll_listen)
             return;
 
         this.paras.listener_scroll_obj.bind("scroll", scroll_listener_func);
@@ -137,31 +142,32 @@ var WaterFall = {
 
     // 监听窗口resize
     window_resize: function() {
+        var that = this;
 
         var resize_n = 0;
         $(window).resize(function() {
 
-            if (!WaterFall.window_resize_listen)
+            if (!that.window_resize_listen)
                 return;
 
-            WaterFall.window_resize_listen = false;
+            that.window_resize_listen = false;
 
             if (++resize_n % 2 === 0)
                 return;
 
             setTimeout(function() {
 
-                WaterFall.window_height_px = $(window).height();
+                that.window_height_px = $(window).height();
 
-                if (WaterFall.paras.resize_window_resize_column_number) {
+                if (that.paras.resize_window_resize_column_number) {
                     // 清空已有列表，重新计算并加载图片
-                    WaterFall.insert_items_list({
-                        datalist: WaterFall.paras.datalist,
+                    that.insert_items_list.apply(that, [{
+                        datalist: that.paras.datalist,
                         clear_box: true
-                    });
+                    }]);
                 } else
                 // 不清空列表，计算是否需要加载新图片（列表宽度不会变）
-                    WaterFall.valid_toInsert();
+                    that.valid_toInsert.apply(that);
 
                 resize_n = 0;
 
@@ -172,31 +178,34 @@ var WaterFall = {
 
     // 判断是否需要插入新单元，并执行
     valid_toInsert: function() {
+        var that = this;
+
         var scrollTop_px = this.paras.listener_scroll_obj.scrollTop();
-        if (WaterFall.column_shortest_height_min_px + WaterFall.box_top_px - scrollTop_px < WaterFall.window_height_px) {
-            if (WaterFall.item_inserting)
+        if (that.column_shortest_height_min_px + that.box_top_px - scrollTop_px < that.window_height_px) {
+            if (that.item_inserting)
                 return;
-            WaterFall.item_inserting = true;
-            WaterFall.insert_item();
+            that.item_inserting = true;
+            that.insert_item.apply(that);
         }
     },
 
     // 装载项目单元
     insert_item: function() {
+        var that = this;
 
-        WaterFall.item_inserting = true;
+        that.item_inserting = true;
 
-        var datalist = WaterFall.paras.datalist;
-        var box_obj = $(WaterFall.paras.box_selector);
+        var datalist = that.paras.datalist;
+        var box_obj = $(that.paras.box_selector);
 
-        if (!WaterFall.column_height_px) {
-            WaterFall.column_height_px = [];
+        if (!that.column_height_px) {
+            that.column_height_px = [];
             var i = 0;
-            var len = WaterFall.column_count;
+            var len = that.column_count;
             for (; i < len; i++)
-                WaterFall.column_height_px[i] = 0;
+                that.column_height_px[i] = 0;
         }
-        var column_height = WaterFall.column_height_px; // 数组，记录每列高度
+        var column_height = that.column_height_px; // 数组，记录每列高度
 
         var insert = function() {
 
@@ -205,26 +214,24 @@ var WaterFall = {
             // console.log(scrollTop_px);
 
             // 如超出了数据长度，则结束
-            if (++WaterFall.insert_n >= datalist.length) {
-                if (WaterFall.paras.callback_all_success) {
-                    WaterFall.paras.callback_all_success();
-                    WaterFall.paras.callback_all_success = null;
+            if (++that.insert_n >= datalist.length) {
+                if (that.paras.callback_all_success) {
+                    that.paras.callback_all_success();
+                    that.paras.callback_all_success = null;
                 }
-                if (WaterFall.paras.callback_none_success && datalist.length === 0)
-                    WaterFall.paras.callback_none_success();
-                WaterFall.item_inserting = false;
-                WaterFall.window_scroll_listen = false;
+                if (that.paras.callback_none_success && datalist.length === 0)
+                    that.paras.callback_none_success();
+                that.item_inserting = false;
+                that.window_scroll_listen = false;
                 return;
             }
-
-            // console.log(WaterFall.insert_n);
 
             // 获得最短的列的序号，0开始
             var column_shortest = (function() {
                 var _column = 0;
                 var _column_height = column_height[0];
                 var i = 1;
-                for (; i < WaterFall.column_count; i++) {
+                for (; i < that.column_count; i++) {
                     if (column_height[i] < _column_height) {
                         _column_height = column_height[i];
                         _column = i;
@@ -233,23 +240,23 @@ var WaterFall = {
                 return _column;
             })();
 
-            // console.log(WaterFall.insert_n);
+            // console.log(that.insert_n);
             // console.log(column_shortest);
             // console.log(column_height);
 
             // 获得新单元的top
-            var top_px = column_height[column_shortest] + (column_height[column_shortest] === 0 ? WaterFall.paras.line_first_top : WaterFall.paras.line_top);
+            var top_px = column_height[column_shortest] + (column_height[column_shortest] === 0 ? that.paras.line_first_top : that.paras.line_top);
             // console.log(top_px);
 
             // 获得新单元的left
-            var left_px = column_shortest === 0 ? WaterFall.paras.column_first_left :
-                WaterFall.paras.column_first_left +
-                column_shortest * (WaterFall.paras.column_left + WaterFall.paras.item_width);
+            var left_px = column_shortest === 0 ? that.paras.column_first_left :
+                that.paras.column_first_left +
+                column_shortest * (that.paras.column_left + that.paras.item_width);
 
             // 插入新单元
-            if (WaterFall.paras.data_template) {
-                var _obj = WaterFall.paras.datalist[WaterFall.insert_n];
-                var _str = WaterFall.paras.data_template;
+            if (that.paras.data_template) {
+                var _obj = that.paras.datalist[that.insert_n];
+                var _str = that.paras.data_template;
                 var reg;
                 for (var key in _obj) {
                     reg = new RegExp("\\{\\$data-" + key + "\\}", "g");
@@ -258,23 +265,23 @@ var WaterFall = {
                 }
                 box_obj.append(_str);
             } else {
-                box_obj.append(datalist[WaterFall.insert_n]);
+                box_obj.append(datalist[that.insert_n]);
             }
 
-            // console.log(WaterFall.insert_n);
+            // console.log(that.insert_n);
 
             // 找到新单元
-            var item_obj = $(WaterFall.paras.box_selector + " " + WaterFall.paras.item_selector);
+            var item_obj = $(that.paras.box_selector + " " + that.paras.item_selector);
             item_obj = $(item_obj[item_obj.length - 1]);
 
             // 装载JSON内容到新单元
-            if (WaterFall.paras.data_template && WaterFall.insert_n === 0) {}
+            if (that.paras.data_template && that.insert_n === 0) {}
 
             // 定位新单元位置
             item_obj.addClass("c" + column_shortest)
                 .css("top", top_px + "px")
                 .css("left", left_px + "px")
-                .css("width", WaterFall.paras.item_width + "px")
+                .css("width", that.paras.item_width + "px")
                 .css("position", "absolute")
                 .find("img").css("width", "100%");
 
@@ -285,21 +292,21 @@ var WaterFall = {
             // 图片加载完成后的执行方法
             var img_obj_loaded = function() {
 
-                // console.log(WaterFall.insert_n + ":" + item_obj.height() + "px");
+                // console.log(that.insert_n + ":" + item_obj.height() + "px");
 
                 // 累加列高度
-                WaterFall.column_height_px[column_shortest] = column_height[column_shortest] = top_px + item_obj.height();
+                that.column_height_px[column_shortest] = column_height[column_shortest] = top_px + item_obj.height();
 
                 // 累加盒高度并改变盒样式
-                // console.log(column_height[column_shortest] + ":" + WaterFall.box_height_px + ":" + box_obj.height());
-                if (column_height[column_shortest] > WaterFall.box_height_px) {
-                    WaterFall.box_height_px = column_height[column_shortest];
-                    box_obj.css("height", WaterFall.box_height_px + "px");
+                // console.log(column_height[column_shortest] + ":" + that.box_height_px + ":" + box_obj.height());
+                if (column_height[column_shortest] > that.box_height_px) {
+                    that.box_height_px = column_height[column_shortest];
+                    box_obj.css("height", that.box_height_px + "px");
                 }
 
                 // 执行插入成功回调
-                if (WaterFall.paras.callback_item_success)
-                    WaterFall.paras.callback_item_success(item_obj);
+                if (that.paras.callback_item_success)
+                    that.paras.callback_item_success(item_obj);
 
                 // 判断是否结束回调
 
@@ -307,30 +314,30 @@ var WaterFall = {
                 scrollTop_px = $(window).scrollTop();
 
                 // 获得最短的列的高度
-                var column_shortest_px = WaterFall.column_shortest_height_min_px = (function() {
+                var column_shortest_px = that.column_shortest_height_min_px = (function() {
                     var shortest_px = column_height[0];
                     var i = 1;
-                    for (; i < WaterFall.column_count; i++) {
+                    for (; i < that.column_count; i++) {
                         if (column_height[i] < shortest_px) {
                             shortest_px = column_height[i];
-                            WaterFall.column_shortest_height_min_px = shortest_px - item_obj.height();
+                            that.column_shortest_height_min_px = shortest_px - item_obj.height();
                         }
                     }
                     return shortest_px;
                 })();
 
                 // 判断最短的列是否超过窗口底线
-                if ((column_shortest_px + WaterFall.box_top_px) > (WaterFall.window_height_px + scrollTop_px)) {
-                    if (WaterFall.paras.callback_all_success) {
-                        WaterFall.paras.callback_all_success();
-                        WaterFall.paras.callback_all_success = null;
+                if ((column_shortest_px + that.box_top_px) > (that.window_height_px + scrollTop_px)) {
+                    if (that.paras.callback_all_success) {
+                        that.paras.callback_all_success();
+                        that.paras.callback_all_success = null;
                     }
                     // 重置window.scroll监听
-                    WaterFall.item_inserting = false;
-                    WaterFall.window_scroll();
+                    that.item_inserting = false;
+                    that.window_scroll.apply(that);
                     // 重置window.resize监听
-                    WaterFall.window_resize_listen = true;
-                    WaterFall.window_resize();
+                    that.window_resize_listen = true;
+                    that.window_resize.apply(that);
                     return;
                 }
 
@@ -355,7 +362,7 @@ var WaterFall = {
                 return function(src) {
                     var _img = new Image();
                     _img.src = src;
-                    // console.log(WaterFall.insert_n + ":" + _img.src);
+                    // console.log(that.insert_n + ":" + _img.src);
                     if (_img.complete) {
                         img_loaded();
                     } else {
@@ -379,25 +386,27 @@ var WaterFall = {
     // 重计算 列数量
     resize_item: function() {
 
+        var that = this;
+
         // 重获窗口高度
-        WaterFall.window_height_px = $(window).height();
+        that.window_height_px = $(window).height();
 
         // 获得外盒top
-        WaterFall.box_top_px = $(WaterFall.paras.box_selector).offset().top;
+        that.box_top_px = $(that.paras.box_selector).offset().top;
 
         // 计算盒宽度
-        WaterFall.box_width_px = $(WaterFall.paras.box_selector).width();
+        that.box_width_px = $(that.paras.box_selector).width();
 
         // 计算盒减首列后宽度
-        var _box_width_px_temp = WaterFall.box_width_px - WaterFall.paras.column_first_left - WaterFall.paras.item_width;
+        var _box_width_px_temp = that.box_width_px - that.paras.column_first_left - that.paras.item_width;
 
         // 计算除首列外列数
-        var _column_count_temp = parseInt(_box_width_px_temp / (WaterFall.paras.column_left + WaterFall.paras.item_width));
+        var _column_count_temp = parseInt(_box_width_px_temp / (that.paras.column_left + that.paras.item_width));
 
         // 计算总列数
-        WaterFall.column_count = _column_count_temp + 1;
-        if (WaterFall.column_count < WaterFall.paras.item_min)
-            WaterFall.column_count = WaterFall.paras.item_min;
+        that.column_count = _column_count_temp + 1;
+        if (that.column_count < that.paras.item_min)
+            that.column_count = that.paras.item_min;
     }
 };
 
