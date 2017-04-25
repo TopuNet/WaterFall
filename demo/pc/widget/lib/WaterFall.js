@@ -1,5 +1,5 @@
 /*
-    v1.1.6
+    v1.1.7
     高京
     2016-08-12
     瀑布流
@@ -29,7 +29,6 @@ var WaterFall = {
             column_first_left: 0, // 第一列 左间距。默认0
             unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，vw不重新计算对应的px
             item_min: 1, // 最小列数，默认1。
-            ps: 50, // 每页显示数量。默认50（5×10）
             data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的${data-key}。
             datalist: null, // 项目单元内容。支持字符串数组或JSON对象。JSON对象需配合data_template使用
             resize_window_resize_column_number: false, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载，耗资源），默认false
@@ -131,13 +130,14 @@ var WaterFall = {
             that.valid_toInsert.apply(that);
         };
 
-        this.paras.listener_scroll_obj.unbind("scroll", scroll_listener_func);
+        that.paras.listener_scroll_obj.unbind("scroll", scroll_listener_func);
 
         // 是否有scroll监听
         if (!that.window_scroll_listen)
             return;
 
-        this.paras.listener_scroll_obj.bind("scroll", scroll_listener_func);
+
+        that.paras.listener_scroll_obj.bind("scroll", scroll_listener_func);
     },
 
     // 监听窗口resize
@@ -173,6 +173,27 @@ var WaterFall = {
 
             }, 0);
         });
+
+    },
+
+    // 阻止监听窗口滚动到最底端 - 解决弹层中显示瀑布流时，滚动过快导致加载中断的bug
+    prependScrollToBottom: function() {
+        var that = this;
+
+        if (that.paras.listener_scroll_selector !== window) {
+            // 获得监听盒高度
+            var listener_obj_height_px = that.paras.listener_scroll_obj.height();
+
+            // 获得监听盒滚动距离
+            var listener_obj_scrollTop_px = that.paras.listener_scroll_obj.scrollTop();
+
+            // 获得内容盒高度
+            var box_obj_height_px = $(that.paras.box_selector).height();
+
+            if (listener_obj_scrollTop_px > 0 && listener_obj_scrollTop_px + listener_obj_height_px >= box_obj_height_px) {
+                that.paras.listener_scroll_obj.scrollTop(listener_obj_scrollTop_px - 1);
+            }
+        }
 
     },
 
@@ -221,6 +242,14 @@ var WaterFall = {
                 }
                 if (that.paras.callback_none_success && datalist.length === 0)
                     that.paras.callback_none_success();
+
+                // 修改内容盒高度 ———— 避免最后一行离外盒底端过近
+                if (!that.change_box_height) {
+                    that.change_box_height = true;
+                    var _box_obj = $(that.paras.box_selector);
+                    _box_obj.css("height", _box_obj.height() + that.paras.line_top + "px");
+                }
+
                 that.item_inserting = false;
                 that.window_scroll_listen = false;
                 return;
@@ -258,9 +287,12 @@ var WaterFall = {
                 var _obj = that.paras.datalist[that.insert_n];
                 var _str = that.paras.data_template;
                 var reg;
+
                 for (var key in _obj) {
                     reg = new RegExp("\\{\\$data-" + key + "\\}", "g");
                     // eval("reg = /\\{\\$data-" + key + "\\}/g;");
+                    if (key == "imgSummary")
+                        _obj[key] += "-" + that.insert_n;
                     _str = _str.replace(reg, _obj[key]);
                 }
                 box_obj.append(_str);
@@ -273,9 +305,6 @@ var WaterFall = {
             // 找到新单元
             var item_obj = $(that.paras.box_selector + " " + that.paras.item_selector);
             item_obj = $(item_obj[item_obj.length - 1]);
-
-            // 装载JSON内容到新单元
-            if (that.paras.data_template && that.insert_n === 0) {}
 
             // 定位新单元位置
             item_obj.addClass("c" + column_shortest)
@@ -308,6 +337,9 @@ var WaterFall = {
                 if (that.paras.callback_item_success)
                     that.paras.callback_item_success(item_obj);
 
+                // 阻止监听窗口滚动到最底端 - 解决弹层中显示瀑布流时，滚动过快导致加载中断的bug
+                that.prependScrollToBottom.apply(that);
+
                 // 判断是否结束回调
 
                 // 获得窗口滚动高度
@@ -332,10 +364,10 @@ var WaterFall = {
                         that.paras.callback_all_success();
                         that.paras.callback_all_success = null;
                     }
-                    // 重置window.scroll监听
+                    // 重置监听box.scroll监听
                     that.item_inserting = false;
                     that.window_scroll.apply(that);
-                    // 重置window.resize监听
+                    // 重置监听box.resize监听
                     that.window_resize_listen = true;
                     that.window_resize.apply(that);
                     return;

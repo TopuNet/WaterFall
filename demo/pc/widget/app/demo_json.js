@@ -20,6 +20,8 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
                 };
             }
 
+            console.log(that.base_datalist);
+
             var WaterFall_obj = {
                 box_selector: "section.list", // 瀑布流外盒选择器。无默认值
                 item_selector: "div.list_item", // 项目单元选择器。必须存在于box内。无默认值

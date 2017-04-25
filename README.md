@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.1.6
+# 瀑布流插件 v1.1.7
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -35,7 +35,6 @@ requireJS引用：
             column_first_left: 29, // 第一列 左间距。默认0
             unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，vw不重新计算对应的px
             item_min: 2, // 最小列数，默认1。
-            ps: 40, // 每页显示数量。默认50（5×10）
             data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的{$data-key}。
             datalist: null, // 项目单元内容。支持字符串数组或JSON对象。JSON对象需配合data_template使用
             resize_window_resize_column_number: true, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载，耗资源），默认false
@@ -109,6 +108,11 @@ requireJS引用：
 
 更新记录：
 --------------
+v1.1.7
+        1. 解决pc端弹层中显示瀑布流时，滚动过快导致加载中断的bug
+        2. 解决加载所有元素结束后，最底排元素距离外盒底端过近的问题
+        3. 传入参数中删除ps，之前就没有用。
+
 v1.1.6
 
         1. 修改几个小Bug
