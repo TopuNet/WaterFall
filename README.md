@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.1.7
+# 瀑布流插件 v1.2.1
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -55,7 +55,9 @@ requireJS引用：
 
 		var paras = {
 			datalist: WaterFall_para.datalist,
-			clear_box: true // 是否清空已有项目单元
+			clear_box: true, // 是否清空现有内容，true/false。默认false
+            scrollTop: 0, // 重载/插入后，默认滚动到外盒的滚动高度，单位px。默认0
+            item_height_px: 0 // 重载/插入后，默认滚动到外盒的某高度时，为了确保焦点盒能显示，加此高度为冗余高度。可以传焦点盒的高度。
 		};
 
 		WaterFall.insert_items_list(paras);
@@ -108,6 +110,12 @@ requireJS引用：
 
 更新记录：
 --------------
+v1.2.1
+
+        重载/插入 项目单元 增加参数：scrollTop、item_height_px。
+        实现在重载插入后，自动将外盒滚动到一个位置。
+        详见pc端demo。
+
 v1.1.7
 
         1. 解决pc端弹层中显示瀑布流时，滚动过快导致加载中断的bug

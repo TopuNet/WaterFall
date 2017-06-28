@@ -66,9 +66,11 @@ define(["lib/WaterFall", "lib/jquery.min"], function($WaterFall) {
                     arr[i] = that.base_datalist[i];
                 var WaterFall_obj = {
                     datalist: arr,
-                    clear_box: true // 是否清空已有项目单元
+                    clear_box: true, // 是否清空已有项目单元
+                    scrollTop: 50,
+                    item_height_px: 100,
                 };
-                
+
                 WaterFall.insert_items_list(WaterFall_obj);
             });
         }

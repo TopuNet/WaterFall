@@ -1,5 +1,5 @@
 /*
-    v1.1.7
+    v1.2.1
     高京
     2016-08-12
     瀑布流
@@ -16,7 +16,7 @@ var WaterFall = {
     item_inserting: false, // 标记正在装载项目——防止同一时间多次调用装载。窗口滚动和窗口resize时会判断是否空闲。
     window_scroll_listen: true, // 标记是否监听窗口滚动（动态加载项目单元），重载数据时停止监听
     window_resize_listen: true, // 标记是否监听窗口改变大小，重置窗口大小时改成false，防止拖动浏览器边缘改变大小时频繁调用出现问题
-    insert_n: -1, // 已插入datalist的序号
+    insert_n: -1, // 已插入datalist 的序号
     init: function(waterfall_obj) {
         var obj_default = {
             listener_scroll_selector: null, // 监听滚动的选择器。默认window，移动端使用mobile_stop_moved模块时，可以设置为最外盒
@@ -29,6 +29,7 @@ var WaterFall = {
             column_first_left: 0, // 第一列 左间距。默认0
             unit: "px", // 宽高单位 "px|vw", 默认px。且重置窗口大小时，vw不重新计算对应的px
             item_min: 1, // 最小列数，默认1。
+            ps: 50, // 每页显示数量。默认50（5×10）
             data_template: null, // 项目单元模板字符串。不传此参数，则项目单元直接装载datalist；传此参数，则datalist需要传入json对象，按键名替换模板中的${data-key}。
             datalist: null, // 项目单元内容。支持字符串数组或JSON对象。JSON对象需配合data_template使用
             resize_window_resize_column_number: false, // 改变窗口大小时，重新计算列宽度（清空所有项目单元并重新加载，耗资源），默认false
@@ -38,6 +39,8 @@ var WaterFall = {
         };
         this.paras = $.extend(obj_default, waterfall_obj);
         this.paras.listener_scroll_obj = this.paras.listener_scroll_selector ? $(this.paras.listener_scroll_selector) : $(window);
+        this.paras.scrollTop = 0;
+        this.paras.item_height_px = 0;
 
         // 设置box的position
         $(this.paras.box_selector).css("position", "relative");
@@ -80,12 +83,16 @@ var WaterFall = {
 
         var paras_default = {
             datalist: null,
-            clear_box: false // 是否清空现有内容，true/false。默认false
+            clear_box: false, // 是否清空现有内容，true/false。默认false
+            scrollTop: 0, // 重载/插入后，默认滚动到外盒的滚动高度，单位px。默认0
+            item_height_px: 0 // 重载/插入后，默认滚动到外盒的某高度时，为了确保焦点盒能显示，加此高度为冗余高度。可以传焦点盒的高度。
         };
 
         paras = $.extend(paras_default, paras);
 
         that.paras.datalist = paras.datalist;
+        that.paras.scrollTop = paras.scrollTop;
+        that.paras.item_height_px = paras.item_height_px;
 
         // 清空插入单元计数器
         that.insert_n = -1;
@@ -95,7 +102,6 @@ var WaterFall = {
 
             // 暂停window.scroll监听
             that.window_scroll_listen = false;
-            that.window_scroll.apply(that);
 
             // 还原全局变量
             that.box_height_px = 0;
@@ -104,40 +110,44 @@ var WaterFall = {
 
             // 改变外盒高度
             $(that.paras.box_selector).animate({
-                height: "0px"
+                height: that.paras.scrollTop + "px",
             }, 0, function() {
 
-                that.window_scroll_listen = true;
+                that.paras.listener_scroll_obj.animate({
+                    scrollTop: 0
+                }, 0, function() {
 
-                $(this).html("");
+                    that.animate_scrollTop.apply(that, [0, 0, function() {
 
-                // 重计算列数量
-                that.resize_item.apply(that);
+                        that.window_scroll_listen = true;
 
-                that.insert_item.apply(that);
+                        $(that.paras.box_selector).html("");
+
+                        // 重计算列数量
+                        that.resize_item.apply(that);
+
+                        that.insert_item.apply(that);
+                    }]);
+                });
+
             });
-        } else
+        } else {
             that.insert_item.apply(that);
+            that.window_scroll_listen = true;
+        }
 
-        that.window_scroll_listen = true;
     },
 
     // 监听窗口滚动
     window_scroll: function() {
         var that = this;
 
-        var scroll_listener_func = function() {
-            that.valid_toInsert.apply(that);
-        };
+        that.window_scroll_listen = true;
 
-        that.paras.listener_scroll_obj.unbind("scroll", scroll_listener_func);
-
-        // 是否有scroll监听
-        if (!that.window_scroll_listen)
-            return;
-
-
-        that.paras.listener_scroll_obj.bind("scroll", scroll_listener_func);
+        that.paras.listener_scroll_obj.bind("scroll", function() {
+            if (that.window_scroll_listen)
+                that.valid_toInsert.apply(that);
+        });
     },
 
     // 监听窗口resize
@@ -176,33 +186,13 @@ var WaterFall = {
 
     },
 
-    // 阻止监听窗口滚动到最底端 - 解决弹层中显示瀑布流时，滚动过快导致加载中断的bug
-    prependScrollToBottom: function() {
-        var that = this;
-
-        if (that.paras.listener_scroll_selector !== window) {
-            // 获得监听盒高度
-            var listener_obj_height_px = that.paras.listener_scroll_obj.height();
-
-            // 获得监听盒滚动距离
-            var listener_obj_scrollTop_px = that.paras.listener_scroll_obj.scrollTop();
-
-            // 获得内容盒高度
-            var box_obj_height_px = $(that.paras.box_selector).height();
-
-            if (listener_obj_scrollTop_px > 0 && listener_obj_scrollTop_px + listener_obj_height_px >= box_obj_height_px) {
-                that.paras.listener_scroll_obj.scrollTop(listener_obj_scrollTop_px - 1);
-            }
-        }
-
-    },
-
     // 判断是否需要插入新单元，并执行
     valid_toInsert: function() {
         var that = this;
 
         var scrollTop_px = this.paras.listener_scroll_obj.scrollTop();
         if (that.column_shortest_height_min_px + that.box_top_px - scrollTop_px < that.window_height_px) {
+            // console.log(that.item_inserting);
             if (that.item_inserting)
                 return;
             that.item_inserting = true;
@@ -230,7 +220,7 @@ var WaterFall = {
 
         var insert = function() {
 
-            var scrollTop_px = $(window).scrollTop(); // 窗口滚动高度
+            var scrollTop_px = that.paras.listener_scroll_obj.scrollTop(); // 窗口滚动高度
 
             // console.log(scrollTop_px);
 
@@ -242,14 +232,6 @@ var WaterFall = {
                 }
                 if (that.paras.callback_none_success && datalist.length === 0)
                     that.paras.callback_none_success();
-
-                // 修改内容盒高度 ———— 避免最后一行离外盒底端过近
-                if (!that.change_box_height) {
-                    that.change_box_height = true;
-                    var _box_obj = $(that.paras.box_selector);
-                    _box_obj.css("height", _box_obj.height() + that.paras.line_top + "px");
-                }
-
                 that.item_inserting = false;
                 that.window_scroll_listen = false;
                 return;
@@ -287,12 +269,9 @@ var WaterFall = {
                 var _obj = that.paras.datalist[that.insert_n];
                 var _str = that.paras.data_template;
                 var reg;
-
                 for (var key in _obj) {
                     reg = new RegExp("\\{\\$data-" + key + "\\}", "g");
                     // eval("reg = /\\{\\$data-" + key + "\\}/g;");
-                    if (key == "imgSummary")
-                        _obj[key] += "-" + that.insert_n;
                     _str = _str.replace(reg, _obj[key]);
                 }
                 box_obj.append(_str);
@@ -337,13 +316,12 @@ var WaterFall = {
                 if (that.paras.callback_item_success)
                     that.paras.callback_item_success(item_obj);
 
-                // 阻止监听窗口滚动到最底端 - 解决弹层中显示瀑布流时，滚动过快导致加载中断的bug
-                that.prependScrollToBottom.apply(that);
-
                 // 判断是否结束回调
 
                 // 获得窗口滚动高度
-                scrollTop_px = $(window).scrollTop();
+                scrollTop_px = that.paras.listener_scroll_obj.scrollTop();
+
+                // console.log("listener_scroll_obj.scrollTop:", scrollTop_px);
 
                 // 获得最短的列的高度
                 var column_shortest_px = that.column_shortest_height_min_px = (function() {
@@ -359,24 +337,63 @@ var WaterFall = {
                 })();
 
                 // 判断最短的列是否超过窗口底线
-                if ((column_shortest_px + that.box_top_px) > (that.window_height_px + scrollTop_px)) {
-                    if (that.paras.callback_all_success) {
-                        that.paras.callback_all_success();
-                        that.paras.callback_all_success = null;
-                    }
-                    // 重置监听box.scroll监听
+                var listener_scroll_obj_height_px = that.paras.listener_scroll_obj.height();
+                // console.log(box_obj.height(), that.paras.scrollTop, that.paras.item_height_px);
+                if (((column_shortest_px + that.box_top_px) > (that.window_height_px + scrollTop_px)) &&
+                    box_obj.height() >= that.paras.scrollTop + that.paras.item_height_px &&
+                    !that.inFinishCase) {
+
+                    // console.log("inCase");
+
+                    that.inFinishCase = true;
+
+                    // 重启window.scroll监听
+                    that.window_scroll_listen = true;
                     that.item_inserting = false;
-                    that.window_scroll.apply(that);
-                    // 重置监听box.resize监听
-                    that.window_resize_listen = true;
-                    that.window_resize.apply(that);
-                    return;
+
+                    var _callback = function() {
+                        that.inFinishCase = false;
+                        that.paras.scrollTop = 0;
+                        that.paras.item_height_px = 0;
+
+                        if (that.paras.callback_all_success) {
+                            that.paras.callback_all_success();
+                            that.paras.callback_all_success = null;
+                        }
+                        // 重置window.resize监听
+                        that.window_resize_listen = true;
+                        that.window_resize.apply(that);
+                    };
+
+                    // 如需滚动到一个默认距离，则滚动。
+                    if (that.paras.scrollTop != 0) {
+                        // console.log("in");
+                        setTimeout(function() {
+                            that.paras.listener_scroll_obj.animate({
+                                scrollTop: that.paras.scrollTop + "px"
+                            }, 200, function() {
+                                that.animate_scrollTop.apply(that, [that.paras.scrollTop, 200, _callback]);
+                            });
+                        }, 0);
+                    } else {
+                        _callback();
+                    }
+
+                    // if (that.paras.scrollTop) {
+                    //     console.log("here");
+                    //     // _callback();
+                    //     setTimeout(function() {
+
+                    //     }, 0);
+                    // } else {
+                    //     _callback();
+                    // }
+
+                } else {
+
+                    // 插入下一个项目
+                    insert();
                 }
-
-                // 结束判断
-
-                // 插入下一个项目
-                insert();
 
             };
 
@@ -439,6 +456,38 @@ var WaterFall = {
         that.column_count = _column_count_temp + 1;
         if (that.column_count < that.paras.item_min)
             that.column_count = that.paras.item_min;
+    },
+
+    // 原生方法改变scrollTop
+    animate_scrollTop: function(toTop, duration, callback) {
+        var that = this;
+
+        // console.log(toTop, duration);
+
+        if (duration === 0)
+            duration = 1;
+
+        var perTime = 20;
+
+        var obj = that.paras.listener_scroll_obj;
+        var top_now_px = obj.scrollTop();
+        var top_per_px = (toTop - top_now_px) / duration * perTime;
+
+        var set_scrollTop = function() {
+            obj.scrollTop(obj.scrollTop() + top_per_px);
+            var stop_toTop_bool = top_per_px <= 0 && obj.scrollTop() <= toTop;
+            var stop_toDown_bool = top_per_px >= 0 && obj.scrollTop() >= toTop;
+            if (stop_toTop_bool || stop_toDown_bool) {
+                // console.log("animate finish");
+                if (callback)
+                    callback();
+                return;
+            } else
+                setTimeout(function() {
+                    set_scrollTop();
+                }, perTime);
+        };
+        set_scrollTop();
     }
 };
 
