@@ -1,4 +1,4 @@
-# 瀑布流插件 v1.2.1
+# 瀑布流插件 v1.2.2
 ### 安装：npm install TopuNet-WaterFall
 
 文件结构：
@@ -110,6 +110,10 @@ requireJS引用：
 
 更新记录：
 --------------
+v1.2.2
+
+        修复 重载/插入 项目单元 时没有启动列表盒scroll监听的bug
+
 v1.2.1
 
         重载/插入 项目单元 增加参数：scrollTop、item_height_px。

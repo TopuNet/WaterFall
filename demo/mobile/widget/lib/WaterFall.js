@@ -1,5 +1,5 @@
 /*
-    v1.2.1
+    v1.2.2
     高京
     2016-08-12
     瀑布流
@@ -119,26 +119,26 @@ var WaterFall = {
 
                     that.animate_scrollTop.apply(that, [0, 0, function() {
 
-                        that.window_scroll_listen = true;
-
                         $(that.paras.box_selector).html("");
 
                         // 重计算列数量
                         that.resize_item.apply(that);
 
                         that.insert_item.apply(that);
+
+                        that.window_scroll.apply(that);
                     }]);
                 });
 
             });
         } else {
             that.insert_item.apply(that);
-            that.window_scroll_listen = true;
+            that.window_scroll.apply(that);
         }
 
     },
 
-    // 监听窗口滚动
+    // 监听窗口滚动（后改为监听that.paras.listener_scroll_obj了）
     window_scroll: function() {
         var that = this;
 
@@ -176,7 +176,7 @@ var WaterFall = {
                         clear_box: true
                     }]);
                 } else
-                // 不清空列表，计算是否需要加载新图片（列表宽度不会变）
+                    // 不清空列表，计算是否需要加载新图片（列表宽度不会变）
                     that.valid_toInsert.apply(that);
 
                 resize_n = 0;
