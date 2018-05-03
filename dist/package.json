@@ -1,6 +1,6 @@
 {
   "name": "TopuNet-WaterFall",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "瀑布流",
   "main": "jq/GrayScale.js",
   "scripts": {

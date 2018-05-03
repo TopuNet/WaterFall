@@ -1,5 +1,5 @@
 /*
-    v1.2.2
+    v1.2.3
     高京
     2016-08-12
     瀑布流
@@ -41,6 +41,14 @@ var WaterFall = {
         this.paras.listener_scroll_obj = this.paras.listener_scroll_selector ? $(this.paras.listener_scroll_selector) : $(window);
         this.paras.scrollTop = 0;
         this.paras.item_height_px = 0;
+        this.paras.item_width = parseInt(this.paras.item_width);
+        this.paras.line_top = parseInt(this.paras.line_top);
+        this.paras.line_first_top = parseInt(this.paras.line_first_top);
+        this.paras.column_left = parseInt(this.paras.column_left);
+        this.paras.column_first_left = parseInt(this.paras.column_first_left);
+        this.paras.item_min = parseInt(this.paras.item_min);
+        this.paras.ps = parseInt(this.paras.ps);
+
 
         // 设置box的position
         $(this.paras.box_selector).css("position", "relative");
